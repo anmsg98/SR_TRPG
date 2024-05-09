@@ -6,28 +6,33 @@ using UnityEngine;
 using UnityEngine.PlayerLoop;
 using UnityEngine.UIElements;
 
-public class NewBehaviourScript : MonoBehaviour
+public class Formation : MonoBehaviour
 {
+    
+    public static Formation instance { get; set; }
+    
     private bool picked = false;
     
     private Transform pickedPlayer;
 
     public GameObject[] character;
-    public Transform[] camp;
-    public Transform Field;
     
     public GameObject alertMessage;
     private Animator alertAnim;
     private TMP_Text alertText;
 
-    private int[,] board = new int[5, 10];
+    void awake()
+    {
+        instance = this;
+    }
+    
     void Start()
     {
         for (int i = 0; i < 5; i++)
         {
             for (int j = 0; j < 10; j++)
             {
-                board[i, j] = 0;
+                Gamemanager.instance.map[i, j] = 0;
             }
         }
         alertAnim = alertMessage.GetComponent<Animator>();
@@ -56,11 +61,11 @@ public class NewBehaviourScript : MonoBehaviour
         
             if (hit.transform.tag == "Spawn_b")
             {
-                if (camp[0].childCount < 3)
+                if (Gamemanager.instance.camp[0].childCount < 3)
                 {
                     int idx = hit.transform.GetSiblingIndex();
                     GameObject obj = Instantiate(character[idx]);
-                    obj.transform.SetParent(camp[0], false);
+                    obj.transform.SetParent(Gamemanager.instance.camp[0], false);
                     mousePos.z = 1f;
                     obj.transform.position = mousePos;
                     picked = true;
@@ -75,11 +80,11 @@ public class NewBehaviourScript : MonoBehaviour
         
             else if (hit.transform.tag == "Spawn_r")
             {
-                if (camp[1].childCount < 3)
+                if (Gamemanager.instance.camp[1].childCount < 3)
                 {
                     int idx = hit.transform.GetSiblingIndex();
                     GameObject obj = Instantiate(character[idx]);
-                    obj.transform.SetParent(camp[1], false);
+                    obj.transform.SetParent(Gamemanager.instance.camp[1], false);
                     mousePos.z = 1f;
                     obj.transform.position = mousePos;
                     picked = true;
@@ -106,11 +111,11 @@ public class NewBehaviourScript : MonoBehaviour
 
                 if (hit.transform.tag == "Spawn_b")
                 {
-                    if (camp[0].childCount < 3)
+                    if (Gamemanager.instance.camp[0].childCount < 3)
                     {
                         int idx = hit.transform.GetSiblingIndex();
                         GameObject obj = Instantiate(character[idx]);
-                        obj.transform.SetParent(camp[0], false);
+                        obj.transform.SetParent(Gamemanager.instance.camp[0], false);
                         touchPos.z = 1f;
                         obj.transform.position = touchPos;
                         picked = true;
@@ -125,11 +130,11 @@ public class NewBehaviourScript : MonoBehaviour
 
                 else if (hit.transform.tag == "Spawn_r")
                 {
-                    if (camp[1].childCount < 3)
+                    if (Gamemanager.instance.camp[1].childCount < 3)
                     {
                         int idx = hit.transform.GetSiblingIndex();
                         GameObject obj = Instantiate(character[idx]);
-                        obj.transform.SetParent(camp[1], false);
+                        obj.transform.SetParent(Gamemanager.instance.camp[1], false);
                         touchPos.z = 1f;
                         obj.transform.position = touchPos;
                         picked = true;
@@ -184,7 +189,7 @@ public class NewBehaviourScript : MonoBehaviour
                 {
                     // 이동한 보드 위치에 캐릭터가 없을 때
                     Vector2Int pos = hit.transform.GetComponent<Board>().pos;
-                    if (board[pos.x, pos.y] == 0)
+                    if (Gamemanager.instance.map[pos.x, pos.y] == 0)
                     {
                         // 해당 보드 위치로 옮김
                         Vector3 boardPosition;
@@ -198,13 +203,13 @@ public class NewBehaviourScript : MonoBehaviour
                         // 캐릭터가 처음 생성된 경우가 아닐때
                         if (pos.x != -1 || pos.y != -1)
                         {
-                            board[pos.x, pos.y] = 0;
+                            Gamemanager.instance.map[pos.x, pos.y] = 0;
                         }
         
                         pos = hit.transform.GetComponent<Board>().pos;
                         if (pickedPlayer.GetComponent<Character>().currentState == Character.State.friend)
-                            board[pos.x, pos.y] = 1;
-                        else board[pos.x, pos.y] = 2;
+                            Gamemanager.instance.map[pos.x, pos.y] = 1;
+                        else Gamemanager.instance.map[pos.x, pos.y] = 2;
                         pickedPlayer.GetComponent<Character>().pos = pos;
                     }
                     // 이동한 보드 위치에 이미 캐릭터가 있을 때
@@ -223,7 +228,7 @@ public class NewBehaviourScript : MonoBehaviour
                             Vector2Int ps = pickedPlayer.GetComponent<Character>().pos;
                             int idx = (ps.x * 10 + ps.y);
                             Vector3 boardPosition;
-                            boardPosition = Field.GetChild(idx).transform.position;
+                            boardPosition = Gamemanager.instance.Field.GetChild(idx).transform.position;
                             boardPosition.z = 1f;
                             pickedPlayer.position = boardPosition;
                         }
@@ -238,7 +243,7 @@ public class NewBehaviourScript : MonoBehaviour
                     Vector2Int pos = pickedPlayer.GetComponent<Character>().pos;
                     if (pos.x != -1 || pos.y != -1)
                     {
-                        board[pos.x, pos.y] = 0;
+                        Gamemanager.instance.map[pos.x, pos.y] = 0;
                     }
         
                     Destroy(pickedPlayer.gameObject);
@@ -286,7 +291,7 @@ public class NewBehaviourScript : MonoBehaviour
                     {
                         // 이동한 보드 위치에 캐릭터가 없을 때
                         Vector2Int pos = hit.transform.GetComponent<Board>().pos;
-                        if (board[pos.x, pos.y] == 0)
+                        if (Gamemanager.instance.map[pos.x, pos.y] == 0)
                         {
                             // 해당 보드 위치로 옮김
                             Vector3 boardPosition;
@@ -298,15 +303,15 @@ public class NewBehaviourScript : MonoBehaviour
                             pos = pickedPlayer.GetComponent<Character>().pos;
 
                             // 캐릭터가 처음 생성된 경우가 아닐때
-                            if (pos.x != -1 || pos.y != -1)
+                            if (pos.x != -1 || pos.y != -1) 
                             {
-                                board[pos.x, pos.y] = 0;
+                                Gamemanager.instance.map[pos.x, pos.y] = 0;
                             }
 
                             pos = hit.transform.GetComponent<Board>().pos;
                             if (pickedPlayer.GetComponent<Character>().currentState == Character.State.friend)
-                                board[pos.x, pos.y] = 1;
-                            else board[pos.x, pos.y] = 2;
+                                Gamemanager.instance.map[pos.x, pos.y] = 1;
+                            else Gamemanager.instance.map[pos.x, pos.y] = 2;
                             pickedPlayer.GetComponent<Character>().pos = pos;
                         }
                         // 이동한 보드 위치에 이미 캐릭터가 있을 때
@@ -325,7 +330,7 @@ public class NewBehaviourScript : MonoBehaviour
                                 Vector2Int ps = pickedPlayer.GetComponent<Character>().pos;
                                 int idx = (ps.x * 10 + ps.y);
                                 Vector3 boardPosition;
-                                boardPosition = Field.GetChild(idx).transform.position;
+                                boardPosition = Gamemanager.instance.Field.GetChild(idx).transform.position;
                                 boardPosition.z = 1f;
                                 pickedPlayer.position = boardPosition;
                             }
@@ -340,7 +345,7 @@ public class NewBehaviourScript : MonoBehaviour
                         Vector2Int pos = pickedPlayer.GetComponent<Character>().pos;
                         if (pos.x != -1 || pos.y != -1)
                         {
-                            board[pos.x, pos.y] = 0;
+                            Gamemanager.instance.map[pos.x, pos.y] = 0;
                         }
 
                         Destroy(pickedPlayer.gameObject);
