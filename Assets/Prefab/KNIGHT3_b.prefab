@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8528755472086939774}
   - component: {fileID: 1480074220285371936}
   - component: {fileID: -8100105080155815220}
+  - component: {fileID: 8019712138880023410}
   m_Layer: 0
   m_Name: KNIGHT3_b
   m_TagString: Player
@@ -143,4 +144,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2f216464d735f4cbc29ed42968a3d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentState: 0
   pos: {x: -1, y: -1}
+--- !u!95 &8019712138880023410
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3887556938242686386}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: f0e60094f6870844b8e2626f70958783, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
