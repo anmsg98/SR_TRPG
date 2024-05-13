@@ -145,7 +145,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 0
+  attackType: 2
   pos: {x: -1, y: -1}
+  hp: 5
+  damage: 1
 --- !u!95 &8019712138880023410
 Animator:
   serializedVersion: 5

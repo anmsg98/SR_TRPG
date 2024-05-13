@@ -9,6 +9,17 @@ public class Character : MonoBehaviour
        friend,
        enemy
     }
+
+    public enum Type
+    {
+        melee,
+        w_melee,
+        range
+    }
+    
     public State currentState;
+    public Type attackType;
     public Vector2Int pos;
+    public int hp;
+    public int damage;
 }

@@ -201,7 +201,7 @@ public class Formation : MonoBehaviour
                         pos = pickedPlayer.GetComponent<Character>().pos;
                         
                         // 캐릭터가 처음 생성된 경우가 아닐때
-                        if (pos.x != -1 || pos.y != -1)
+                        if (pos.x != -1 && pos.y != -1)
                         {
                             Gamemanager.instance.map[pos.x, pos.y] = 0;
                         }
