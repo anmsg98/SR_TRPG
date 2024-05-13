@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using TMPro;
 
 public class Gamemanager : MonoBehaviour
 {
@@ -14,7 +15,6 @@ public class Gamemanager : MonoBehaviour
     public Transform[] camp;
     public Transform Field;
     
-    private bool start = false;
     private List<Vector2Int> enemyPos = new List<Vector2Int>();
     
     
@@ -25,8 +25,21 @@ public class Gamemanager : MonoBehaviour
     private int[] dy = new int[4]{ 0, 0, -1, 1 };
 
     private Vector2Int currentPos;
+    
+    private Transform target;
     private Vector2Int targetPos;
+    
     private bool canMove = false;
+
+    private bool turnEnd = false;
+    private bool gameOver = false;
+    public int[] deadCount = new int [2];
+    
+    public Animator alertAnim;
+    public TMP_Text alertText;
+
+    public Animator entityAnim;
+    public GameObject[] disableAtStart;
     
     private void Awake()
     {
@@ -44,14 +57,22 @@ public class Gamemanager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (!gameOver)
+        {
+            WinLoseDecision();
+
+            if (turnEnd)
+            {
+                StartCoroutine(GameStart());
+                turnEnd = false;
+            }
+        }
     }
 
-    void FindRoute(GameObject Entity)
+    void SetOfAction(GameObject Entity)
     {
-        float distance = 99f;
-        
         currentPos = Entity.GetComponent<Character>().pos;
+        float distance = 99f;
         
         // 타겟을 구함
         for (int i = 0; i < 5; i++)
@@ -64,6 +85,15 @@ public class Gamemanager : MonoBehaviour
                     {
                         if (distance > Vector2Int.Distance(currentPos, new Vector2Int(i, j)))
                         {
+                            for (int k = 0; k < 3; k++)
+                            {
+                                if (camp[1].GetChild(k).GetComponent<Character>().pos.x == i &&
+                                    camp[1].GetChild(k).GetComponent<Character>().pos.y == j)
+                                {
+                                    target = camp[1].GetChild(k);
+                                }
+                            }
+                            
                             distance = Vector2Int.Distance(currentPos, new Vector2Int(i, j));
                             targetPos = new Vector2Int(i, j);
                         }
@@ -75,6 +105,15 @@ public class Gamemanager : MonoBehaviour
                     {
                         if (distance > Vector2Int.Distance(currentPos, new Vector2Int(i, j)))
                         {
+                            for (int k = 0; k < 3; k++)
+                            {
+                                if (camp[0].GetChild(k).GetComponent<Character>().pos.x == i &&
+                                    camp[0].GetChild(k).GetComponent<Character>().pos.y == j)
+                                {
+                                    target = camp[0].GetChild(k);
+                                }
+                            }
+                            
                             distance = Vector2Int.Distance(currentPos, new Vector2Int(i, j));
                             targetPos = new Vector2Int(i, j);
                         }
@@ -83,7 +122,6 @@ public class Gamemanager : MonoBehaviour
             }
         }
 
-        Debug.Log(targetPos);
         // 타겟이 공격거리에 도달했을때 (지금은 근거리 공격수 기준밖에 없음)
         int totalDistance = Math.Abs(currentPos.x - targetPos.x) + Math.Abs(currentPos.y - targetPos.y);
         if (Entity.transform.GetComponent<Character>().attackType == Character.Type.range)
@@ -91,16 +129,15 @@ public class Gamemanager : MonoBehaviour
             if (totalDistance > 3)
                 canMove = true;
             else
-                Attack(Entity);
+                Attack(Entity, target);
         }
         else
         {
             if (totalDistance > 1)
                 canMove = true;
             else
-                Attack(Entity);
+                Attack(Entity, target);
         }
-        Debug.Log(canMove);
         int minDis = 99;
         if (canMove) 
         {
@@ -131,8 +168,6 @@ public class Gamemanager : MonoBehaviour
                 }
             }
 
-            Debug.Log(minDis);
-
             Entity.transform.GetComponent<Animator>().SetTrigger("Run");
             // 맵 현황을 바꾸고 해당 캐릭터를 이동
             map[currentPos.x, currentPos.y] = 0;
@@ -152,41 +187,33 @@ public class Gamemanager : MonoBehaviour
         }
     }
 
-    public void Attack(GameObject Entity)
+    public void Attack(GameObject Entity, Transform target)
     {
+        // 광역 공격일 경우 (근거리 광역 캐릭터)
+        if (Entity.transform.GetComponent<Character>().attackType == Character.Type.w_melee)
+        {
+            Entity.transform.GetComponent<Character>().Attack(target);
+        }
+        // 단일 공격일 경우 (근거리, 원거리 캐릭터)
+        else
+        {
+            Entity.transform.GetComponent<Character>().Attack(target);
+        }
         Entity.transform.GetComponent<Animator>().SetTrigger("Attack");
     }
     
-    public void InsertMapInfo()
-    {
-        for (int i = 0; i < 2; i++)
-        {
-            for (int j = 0; j < camp[i].childCount; j++)
-            {
-                entityOrder.Add(camp[i].GetChild(j).gameObject);
-            }
-        }
-
-        // for (int i = 0; i < 5; i++)
-        // {
-        //     for (int j = 0; j < 10; j++)
-        //     {
-        //         Debug.Log(map[i, j]);
-        //     }
-        // }
-        StartCoroutine(GameStart());
-    }
-
     public IEnumerator GameStart()
     {
-        for (int i = 0; i < 10; i++)
+        for (int j = 0; j < entityOrder.Count; j++)
         {
-            for (int j = 0; j < 6; j++)
+            if (entityOrder[j].activeInHierarchy)
             {
-                FindRoute(entityOrder[j]);
+                SetOfAction(entityOrder[j]);
                 yield return new WaitForSeconds(1f);
             }
         }
+
+        turnEnd = true;
     }
 
     private int BFS(int startx, int starty, int endx, int endy, bool isBlue)
@@ -247,6 +274,28 @@ public class Gamemanager : MonoBehaviour
         return cnt;
     }
 
+    public void InsertMapInfo()
+    {
+        if (camp[1].childCount + camp[0].childCount != 6)
+        {
+            alertText.text = "각 진영당 3명의 캐릭터를 배치해야 합니다.";
+            alertAnim.SetTrigger("Alert_On");
+        }
+
+        else
+        {
+            for (int i = 0; i < 2; i++)
+            {
+                for (int j = 0; j < camp[i].childCount; j++)
+                {
+                    entityOrder.Add(camp[i].GetChild(j).gameObject);
+                }
+            }
+
+            StartCoroutine(DisableOnStart());
+        }
+    }
+
     private void Reset()
     {
         for (int i = 0; i < 5; i++)
@@ -256,6 +305,38 @@ public class Gamemanager : MonoBehaviour
                 disMap[i, j] = 0;
                 visited[i, j] = false;
             }
+        }
+    }
+
+    private IEnumerator DisableOnStart()
+    {
+        entityAnim.SetTrigger("Start");
+        for (int i = 0; i < 2; i++)
+        {
+            disableAtStart[i].SetActive(false);
+        }
+        
+        yield return new WaitForSeconds(1f);
+        
+        turnEnd = true;
+    }
+
+    private void WinLoseDecision()
+    {
+        if (deadCount[0] == 3)
+        {
+            gameOver = true;
+            entityAnim.SetTrigger("End");
+            alertText.text = "적팀 승리!";
+            alertAnim.SetTrigger("Alert_On");
+        }
+
+        if (deadCount[1] == 3)
+        {
+            gameOver = true;
+            entityAnim.SetTrigger("End");
+            alertText.text = "아군팀 승리!";
+            alertAnim.SetTrigger("Alert_On");
         }
     }
 }

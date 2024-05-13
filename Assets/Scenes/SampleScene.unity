@@ -4839,6 +4839,13 @@ MonoBehaviour:
   - {fileID: 1621633940}
   - {fileID: 358447696}
   Field: {fileID: 269182853}
+  deadCount: 0000000000000000
+  alertAnim: {fileID: 1116048273}
+  alertText: {fileID: 1116048271}
+  entityAnim: {fileID: 1603838424}
+  disableAtStart:
+  - {fileID: 1803242146}
+  - {fileID: 64418400}
 --- !u!114 &1019181214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4858,7 +4865,6 @@ MonoBehaviour:
   - {fileID: 6303378913274773561, guid: ff8a49ad59765d543abba882c84736f0, type: 3}
   - {fileID: 221130208197051684, guid: b75fb66c2f23c674d975fae46dc3e809, type: 3}
   - {fileID: 3887556938242686386, guid: d963c8a187ec3274da8cb32aa406ef63, type: 3}
-  alertMessage: {fileID: 1116048269}
 --- !u!1 &1027038380
 GameObject:
   m_ObjectHideFlags: 0
@@ -6759,7 +6765,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1603838423}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 36d22a882a6dc22498cbb0a66b0b1d21, type: 2}
   m_CullingMode: 0
