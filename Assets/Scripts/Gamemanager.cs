@@ -192,7 +192,7 @@ public class Gamemanager : MonoBehaviour
         
         else if(Entity.transform.GetComponent<Character>().attackType == Character.Type.melee) // 근거리
         {
-            if (attackDistance > 1)
+            if (attackDistance > 2)
                 canMove = true;
             else
                 Attack(Entity, nearestTarget);
@@ -200,7 +200,7 @@ public class Gamemanager : MonoBehaviour
         
         else // 근거리 광역
         {
-            if (attackDistance > 1)
+            if (attackDistance > 2)
                 canMove = true;
             else
                 WideAttack(Entity, targets);
