@@ -6,13 +6,7 @@ using UnityEngine;
 
 public class Board : MonoBehaviour
 {
-    public static Board instance { get; set; }
     public Vector2Int pos;
-
-    void awake()
-    {
-        instance = this;
-    }
     private void Start()
     {
         int x = (int) transform.GetSiblingIndex() / 10;

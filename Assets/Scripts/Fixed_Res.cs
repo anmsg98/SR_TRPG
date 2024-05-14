@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class Fixed : MonoBehaviour
 {
+    // 해상도 비율 고정 (16:9, 해상도를 벗어나는 부분은 검은색으로 처리)
     void Start()
     {
         var camera = GetComponent<Camera>();        
